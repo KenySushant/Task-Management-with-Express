@@ -3,6 +3,8 @@
  * @description Task Controller
  * @author Nikzzy
  */
+const { ObjectID } = require('mongodb');
+
 const { TaskModel } = require('./../models');
 
 const createTask = async (req, res, next) => {
@@ -27,6 +29,103 @@ const createTask = async (req, res, next) => {
     }
 };
 
+const getAllTasks = async (req, res, next) => {
+    try {
+        const tasks = await TaskModel.find();
+        return res.status(200).send(tasks);
+    } catch (error) {
+        return next(error);
+    }
+};
+
+const getTaskById = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        if (!ObjectID.isValid(id)) {
+            return res.status(404).send({
+                error: 'Not Found',
+                message: `Task with id '${id}' not found`,
+            });
+        }
+
+        const task = await TaskModel.findById(id);
+
+        if (!task) {
+            return res.status(404).send({
+                error: 'Not Found',
+                message: `Task with id '${id}' not found`,
+            });
+        }
+
+        return res.status(200).send(task);
+    } catch (error) {
+        return next(error);
+    }
+};
+
+const updateTaskStatusById = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!ObjectID.isValid(id)) {
+            return res.status(404).send({
+                error: 'Not Found',
+                message: `Task with id '${id}' not found`,
+            });
+        }
+
+        const task = await TaskModel.findByIdAndUpdate(id, {
+            status,
+        }, {
+            runValidators: true,
+            new: true,
+        });
+
+        if (!task) {
+            return res.status(404).send({
+                error: 'Not Found',
+                message: `Task with id '${id}' not found`,
+            });
+        }
+
+        return res.status(200).send(task);
+    } catch (error) {
+        return next(error);
+    }
+};
+
+const deleteTaskById = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        if (!ObjectID.isValid(id)) {
+            return res.status(404).send({
+                error: 'Not Found',
+                message: `Task with id '${id}' not found`,
+            });
+        }
+
+        const task = await TaskModel.findByIdAndDelete(id);
+
+        if (!task) {
+            return res.status(404).send({
+                error: 'Not Found',
+                message: `Task with id '${id}' not found`,
+            });
+        }
+
+        return res.status(200).send(task);
+    } catch (error) {
+        return next(error);
+    }
+};
+
 module.exports = {
     createTask,
+    getAllTasks,
+    getTaskById,
+    updateTaskStatusById,
+    deleteTaskById,
 };

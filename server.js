@@ -43,6 +43,7 @@ mongoose
     .connect('mongodb://localhost:27017/TaskManagement', {
         useNewUrlParser: true,
         useUnifiedTopology: true,
+        useFindAndModify: false,
     })
     .then(() => {
         console.log('Connected to the database server');
